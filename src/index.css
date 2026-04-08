@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Poppins', Inter, sans-serif;
+    background-color: #FAFAF8;
+    color: #1A1A1A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-[1280px] mx-auto px-5 md:px-10 lg:px-15;
+  }
+
+  .btn-primary {
+    @apply bg-brand-red text-white font-semibold px-8 py-3 rounded-full
+           transition-all duration-300
+           hover:scale-105 hover:shadow-red-glow hover:bg-brand-red-light
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-blue text-white font-semibold px-8 py-3 rounded-full
+           transition-all duration-300
+           hover:scale-105 hover:opacity-90
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+  }
+
+  .btn-outline-gold {
+    @apply border-2 border-brand-gold text-brand-gold font-semibold px-8 py-3 rounded-full
+           bg-transparent transition-all duration-300
+           hover:bg-brand-gold hover:text-dark-text hover:scale-105
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-lift;
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(90deg, #D4AF37 0%, #F4E4A6 40%, #D4AF37 60%, #F4E4A6 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .gold-shimmer-bg {
+    background: linear-gradient(90deg, #D4AF37, #F4E4A6, #D4AF37, #F4E4A6);
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl font-bold text-center mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-center text-gray-500 max-w-xl mx-auto mb-12 text-base;
+  }
+
+  .star-filled {
+    color: #D4AF37;
+  }
+}
+
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  }
+
+  .pattern-bg {
+    background-image: radial-gradient(circle at 25% 25%, rgba(212,175,55,0.05) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, rgba(196,30,58,0.05) 0%, transparent 50%);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1A1A1A; }
+::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
+
+/* Lightbox overlay */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
