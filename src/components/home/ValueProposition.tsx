@@ -1,66 +1,71 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
-const VALUES = [
+/**
+ * Three whispered promises. No icons. No features.
+ * Just feeling.
+ */
+const WHISPERS = [
   {
-    icon: '✦',
-    title: 'Premium Quality',
-    desc: 'High-end components, luxury packaging, and meticulous craftsmanship that rivals collector board games worldwide.',
-    color: 'brand-gold',
+    n: '01',
+    kicker: 'Warmth',
+    line: 'The feeling of stepping into a wedding night where everyone knows your name.',
   },
   {
-    icon: '🪔',
-    title: 'Cultural Celebration',
-    desc: 'Deep Indian wedding aesthetics woven into every game mechanic, card, and component. Authentically crafted.',
-    color: 'brand-red',
+    n: '02',
+    kicker: 'Craft',
+    line: 'Made to be kept. Not played once — remembered often.',
   },
   {
-    icon: '🎉',
-    title: 'Social Gaming',
-    desc: 'Designed for parties, gatherings, and celebrations. Perfect for 4–8 players and unforgettable game nights.',
-    color: 'marigold',
-  },
-  {
-    icon: '👑',
-    title: "Collector's Item",
-    desc: 'Limited Gold Edition available. A showpiece for any collection and the ultimate luxury gifting choice.',
-    color: 'deep-purple',
+    n: '03',
+    kicker: 'Belonging',
+    line: 'For those who miss home, and those who have always been curious about it.',
   },
 ];
 
 export default function ValueProposition() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section className="section-padding bg-soft-bg">
-      <div className="max-w-container mx-auto px-5 md:px-10">
+    <section className="section-padding bg-ivory-deep">
+      <div className="container-custom">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 1.2 }}
+          className="max-w-4xl mx-auto text-center mb-20"
         >
-          <h2 className="section-title text-dark-text">Why TGIW?</h2>
-          <p className="section-subtitle">
-            More than a board game — a cultural experience, a collector's pride, a celebration starter.
-          </p>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <span className="hairline" />
+            <span className="eyebrow">A night, not a product</span>
+            <span className="hairline" />
+          </div>
+          <h2 className="display-lg text-ink text-balance">
+            Some evenings <span className="display-italic text-maroon">stay</span> with you.
+          </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {VALUES.map((v, i) => (
+        <div className="grid md:grid-cols-3 gap-12 md:gap-16">
+          {WHISPERS.map((w, i) => (
             <motion.div
-              key={v.title}
+              key={w.n}
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="bg-white rounded-2xl p-8 border border-border-divider card-hover text-center group"
+              transition={{ duration: 1, delay: 0.2 + i * 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="text-center md:text-start"
             >
-              <div className="text-4xl mb-5">{v.icon}</div>
-              <h3 className="font-serif font-bold text-xl text-dark-text mb-3">{v.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{v.desc}</p>
+              <div className="flex items-center gap-3 justify-center md:justify-start mb-5">
+                <span className="font-serif text-gold-deep/70 text-sm tracking-luxe">{w.n}</span>
+                <span className="h-px flex-1 bg-gold/20" />
+              </div>
+              <h3 className="font-serif text-2xl md:text-3xl text-ink mb-4 tracking-editorial">
+                {w.kicker}
+              </h3>
+              <p className="text-ink-soft/80 text-base leading-relaxed font-light">
+                {w.line}
+              </p>
             </motion.div>
           ))}
         </div>

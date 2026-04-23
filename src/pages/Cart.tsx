@@ -2,180 +2,192 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatters';
+import { PREORDER } from '../utils/constants';
 
+/**
+ * Reservation experience — not a shopping cart.
+ * You are holding seats for a cohort that ships in 90 days.
+ */
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, total, itemCount, clearCart } = useCart();
+  const { items, removeFromCart, updateQuantity, total, itemCount } = useCart();
   const navigate = useNavigate();
 
+  const depositTotal = items.reduce((sum, i) => sum + PREORDER.depositAED * i.quantity, 0);
+
   return (
-    <main className="pt-28 pb-20 min-h-screen bg-soft-bg">
-      <div className="max-w-container mx-auto px-5 md:px-10">
+    <main className="pt-32 pb-24 min-h-screen bg-ivory">
+      <div className="container-custom">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
         >
-          <h1 className="font-serif font-bold text-3xl md:text-4xl text-dark-text mb-2">
-            Shopping Cart
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <span className="hairline" />
+            <span className="eyebrow">Your reservation</span>
+            <span className="hairline" />
+          </div>
+          <h1 className="display-lg text-ink text-balance">
+            {itemCount > 0 ? (
+              <>
+                You are <span className="display-italic text-maroon">holding a seat.</span>
+              </>
+            ) : (
+              <>
+                No seats <span className="display-italic text-maroon">yet.</span>
+              </>
+            )}
           </h1>
-          <p className="text-gray-400 mb-10">
-            {itemCount > 0 ? `${itemCount} item${itemCount > 1 ? 's' : ''} in your cart` : 'Your cart is empty'}
-          </p>
+          {itemCount > 0 && (
+            <p className="text-ink-soft/70 font-light mt-6 max-w-md mx-auto">
+              {PREORDER.cohortName} · Ships in {PREORDER.cohortShipMonths} months
+            </p>
+          )}
         </motion.div>
 
         {items.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-24 bg-white rounded-3xl border border-border-divider"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
           >
-            <div className="text-6xl mb-6">🛒</div>
-            <h2 className="font-serif font-bold text-2xl text-dark-text mb-3">Your cart is empty</h2>
-            <p className="text-gray-400 mb-8">Discover the TGIW board game and add it to your cart.</p>
-            <Link to="/product" className="btn-primary">Explore The Game</Link>
+            <p className="text-ink-soft/70 text-lg font-light mb-10 max-w-md mx-auto">
+              The Founders Cohort is open. Reserve your Shaadi with a refundable deposit.
+            </p>
+            <Link to="/product" className="btn-primary">Reserve yours</Link>
           </motion.div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart items */}
-            <div className="lg:col-span-2 space-y-4">
+          <div className="grid lg:grid-cols-3 gap-12 max-w-5xl mx-auto">
+            {/* Seats held */}
+            <div className="lg:col-span-2 space-y-6">
               <AnimatePresence>
                 {items.map((item) => (
                   <motion.div
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-2xl border border-border-divider p-5 flex gap-5 items-start"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="border-b border-ink/10 pb-8 flex gap-6 items-start"
                   >
-                    {/* Image */}
-                    <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-dark-text to-dark-surface flex items-center justify-center">
+                    <div className="w-28 h-28 flex-shrink-0 bg-parchment rounded-xl overflow-hidden flex items-center justify-center">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-contain p-2"
-                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/96x96/1A1A1A/D4AF37?text=TGIW'; }}
+                        className="w-full h-full object-contain p-3"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            'https://placehold.co/112x112/F0E6D2/6B1B2E?text=TGIW';
+                        }}
                       />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <h3 className="font-semibold text-dark-text text-sm md:text-base leading-snug">{item.name}</h3>
-                          <span className="inline-block mt-1 text-xs bg-brand-gold/10 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded-full capitalize">
-                            {item.edition} Edition
-                          </span>
+                      <h3 className="font-serif text-xl md:text-2xl text-ink tracking-editorial">
+                        {item.name}
+                      </h3>
+                      <p className="text-muted text-sm mt-1">{PREORDER.cohortName}</p>
+
+                      <div className="flex items-center justify-between mt-6">
+                        <div className="flex items-center gap-4">
+                          <span className="text-xs uppercase tracking-luxe text-muted">Seats</span>
+                          <div className="flex items-center border border-ink/15 rounded-full">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="px-3 py-1.5 hover:text-maroon transition-colors text-lg"
+                              aria-label="Decrease"
+                            >−</button>
+                            <span className="px-3 text-sm font-medium">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="px-3 py-1.5 hover:text-maroon transition-colors text-lg"
+                              aria-label="Increase"
+                            >+</button>
+                          </div>
                         </div>
+
                         <button
                           onClick={() => removeFromCart(item.id)}
-                          className="text-gray-300 hover:text-brand-red transition-colors p-1"
-                          aria-label="Remove item"
+                          className="text-muted text-xs tracking-wide hover:text-maroon transition-colors duration-500 underline underline-offset-4"
                         >
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          Release seat
                         </button>
                       </div>
-
-                      <div className="flex items-center justify-between mt-4">
-                        {/* Qty */}
-                        <div className="flex items-center border border-border-divider rounded-full overflow-hidden">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="px-3 py-1.5 hover:bg-soft-bg transition-colors text-sm font-bold"
-                            aria-label="Decrease"
-                          >−</button>
-                          <span className="px-3 text-sm font-semibold">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="px-3 py-1.5 hover:bg-soft-bg transition-colors text-sm font-bold"
-                            aria-label="Increase"
-                          >+</button>
-                        </div>
-                        <span className="font-serif font-bold text-lg text-brand-red">
-                          {formatPrice(item.price * item.quantity)}
-                        </span>
-                      </div>
                     </div>
+
+                    <span className="font-serif text-xl text-maroon whitespace-nowrap">
+                      {formatPrice(PREORDER.depositAED * item.quantity)}
+                    </span>
                   </motion.div>
                 ))}
               </AnimatePresence>
 
-              <div className="flex justify-between pt-2">
-                <Link to="/product" className="text-brand-blue text-sm font-medium hover:underline">
-                  ← Continue Shopping
-                </Link>
-                <button
-                  onClick={clearCart}
-                  className="text-gray-400 text-sm hover:text-brand-red transition-colors"
+              <div className="pt-4">
+                <Link
+                  to="/product"
+                  className="text-ink-soft/70 text-sm tracking-wide hover:text-maroon transition-colors duration-500 underline underline-offset-8"
                 >
-                  Clear Cart
-                </button>
+                  ← Back to the invitation
+                </Link>
               </div>
             </div>
 
-            {/* Order summary */}
+            {/* Reservation summary */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-4"
+              transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="bg-white rounded-2xl border border-border-divider p-6 sticky top-28">
-                <h2 className="font-serif font-bold text-xl text-dark-text mb-6">Order Summary</h2>
+              <div className="bg-ivory-deep rounded-2xl p-8 sticky top-32">
+                <h2 className="font-serif text-xl text-ink mb-8 tracking-editorial">
+                  Your reservation
+                </h2>
 
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-500">
-                    <span>Subtotal ({itemCount} item{itemCount > 1 ? 's' : ''})</span>
-                    <span className="font-medium text-dark-text">{formatPrice(total)}</span>
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between text-ink-soft/80">
+                    <span>Seats held</span>
+                    <span className="text-ink">{itemCount}</span>
                   </div>
-                  <div className="flex justify-between text-gray-500">
-                    <span>Shipping to Dubai</span>
-                    <span className="text-brand-green font-medium">Included</span>
+                  <div className="flex justify-between text-ink-soft/80">
+                    <span>Full total</span>
+                    <span className="text-ink">{formatPrice(total)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-500">
-                    <span>Estimated Delivery</span>
-                    <span className="font-medium text-dark-text">3–5 business days</span>
+                  <div className="flex justify-between text-ink-soft/80">
+                    <span>Cohort</span>
+                    <span className="text-ink">{PREORDER.cohortName}</span>
+                  </div>
+                  <div className="flex justify-between text-ink-soft/80">
+                    <span>Ships in</span>
+                    <span className="text-ink">{PREORDER.cohortShipMonths} months</span>
                   </div>
                 </div>
 
-                <div className="border-t border-border-divider my-4" />
+                <div className="border-t border-ink/10 my-6" />
 
-                <div className="flex justify-between items-center mb-6">
-                  <span className="font-bold text-dark-text">Total</span>
-                  <span className="font-serif font-bold text-2xl text-brand-red">{formatPrice(total)}</span>
+                <div className="flex justify-between items-end mb-8">
+                  <div>
+                    <p className="text-xs uppercase tracking-luxe text-muted mb-1">
+                      Pay today
+                    </p>
+                    <p className="text-xs text-muted">Refundable deposit</p>
+                  </div>
+                  <span className="font-serif text-3xl text-maroon">
+                    {formatPrice(depositTotal)}
+                  </span>
                 </div>
 
                 <button
                   onClick={() => navigate('/checkout')}
-                  className="btn-primary w-full py-4 text-base"
+                  className="btn-primary w-full"
                 >
-                  Proceed to Checkout
+                  Hold my seat
                 </button>
 
-                {/* Trust */}
-                <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-400">
-                  <span>🔒 Secure checkout</span>
-                  <span>✓ 30-day returns</span>
-                </div>
-              </div>
-
-              {/* Coupon placeholder */}
-              <div className="bg-white rounded-2xl border border-border-divider p-5">
-                <p className="text-sm font-semibold text-dark-text mb-3">Have a coupon?</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter code"
-                    className="flex-1 border border-border-divider rounded-full px-4 py-2 text-sm focus:outline-none focus:border-brand-gold transition-colors"
-                    disabled
-                  />
-                  <button className="px-4 py-2 bg-soft-bg text-gray-400 rounded-full text-sm cursor-not-allowed">
-                    Apply
-                  </button>
-                </div>
-                <p className="text-xs text-gray-400 mt-2">Coupon codes available in next update.</p>
+                <p className="text-center text-muted text-xs mt-5 leading-relaxed">
+                  The balance of {formatPrice(PREORDER.remainderAED)} per seat is collected only when your Shaadi ships. Full refund any time before production begins.
+                </p>
               </div>
             </motion.div>
           </div>

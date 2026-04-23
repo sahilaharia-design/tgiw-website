@@ -11,7 +11,7 @@ export default function NewsletterSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address.');
+      setError('Please enter a valid email.');
       return;
     }
     setError('');
@@ -19,49 +19,65 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-r from-brand-red to-brand-red-light relative overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 0%, transparent 40%), radial-gradient(circle at 80% 50%, white 0%, transparent 40%)' }}
+    <section className="py-32 bg-maroon-deep text-ivory relative overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-30 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 50% 40% at 50% 50%, rgba(232,165,58,0.25) 0%, transparent 60%)',
+        }}
       />
 
-      <div className="max-w-container mx-auto px-5 md:px-10 relative" ref={ref}>
+      <div className="container-custom relative" ref={ref}>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-xl mx-auto"
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center max-w-2xl mx-auto"
         >
-          <h2 className="font-serif font-bold text-white text-3xl md:text-4xl mb-3">Stay Updated</h2>
-          <p className="text-white/80 mb-8">
-            Be the first to know about new editions, restocks, and exclusive Dubai events.
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <span className="h-px w-12 bg-gold/50" />
+            <span className="eyebrow !text-gold-light">The guest list</span>
+            <span className="h-px w-12 bg-gold/50" />
+          </div>
+
+          <h2 className="display-lg text-ivory mb-6 text-balance">
+            First to be <span className="display-italic text-gold-light">invited.</span>
+          </h2>
+
+          <p className="text-ivory/70 mb-10 font-light text-lg">
+            News from the Shaadi. Only when there is something worth saying.
           </p>
 
           {submitted ? (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-white/20 rounded-2xl px-8 py-6 text-white"
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="font-serif italic text-xl text-gold-light"
             >
-              <div className="text-4xl mb-2">🎉</div>
-              <p className="font-semibold text-lg">You're on the list!</p>
-              <p className="text-white/80 text-sm mt-1">We'll keep you updated with the latest from TGIW.</p>
-            </motion.div>
+              You are on the guest list.
+            </motion.p>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <div className="flex-1">
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                  placeholder="Enter your email address"
-                  className="w-full px-5 py-3.5 rounded-full bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError('');
+                  }}
+                  placeholder="Your email"
+                  className="w-full px-6 py-4 rounded-full bg-ivory/5 border border-ivory/15 text-ivory placeholder-ivory/40 focus:outline-none focus:border-gold transition-all duration-500"
                   aria-label="Email address"
                 />
-                {error && <p className="text-white/80 text-xs mt-1 pl-4">{error}</p>}
+                {error && <p className="text-gold-light/80 text-xs mt-2 ps-4">{error}</p>}
               </div>
-              <button type="submit" className="bg-brand-gold hover:bg-brand-gold-light text-dark-text font-semibold px-8 py-3.5 rounded-full transition-all duration-300 hover:scale-105 whitespace-nowrap">
-                Subscribe
+              <button
+                type="submit"
+                className="px-8 py-4 rounded-full bg-gold text-maroon-deep font-medium tracking-wide hover:bg-gold-light transition-all duration-500 whitespace-nowrap"
+              >
+                Add me
               </button>
             </form>
           )}
