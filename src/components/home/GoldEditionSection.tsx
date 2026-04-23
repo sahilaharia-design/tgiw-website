@@ -23,7 +23,7 @@ function RooftopSilhouette() {
         left: 0,
         width: '100%',
         height: 'auto',
-        opacity: 0.055,
+        opacity: 0.15,
         pointerEvents: 'none',
         zIndex: 1,
       }}
@@ -84,7 +84,13 @@ export default function GoldEditionSection() {
       data-room="collector"
       className="relative overflow-hidden"
       style={{
-        background: 'var(--dark)',
+        background: `linear-gradient(
+          160deg,
+          oklch(18% 0.16 30)  0%,
+          oklch(20% 0.12 45) 35%,
+          oklch(22% 0.10 60) 65%,
+          oklch(16% 0.08 22) 100%
+        )`,
         paddingBlock: 'clamp(8rem, 16vw, 16rem)',
       }}
     >
@@ -95,9 +101,10 @@ export default function GoldEditionSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 110% 50% at 50% 0%,   oklch(44% 0.10 14 / 0.25)  0%, transparent 50%),
-            radial-gradient(ellipse 80%  60% at 50% 50%,  oklch(74% 0.12 80 / 0.07)  0%, transparent 65%),
-            radial-gradient(ellipse 100% 40% at 50% 100%, oklch(23% 0.04 28 / 0.70)  0%, transparent 50%)
+            radial-gradient(ellipse 110% 55% at 50% 0%,   oklch(72% 0.22 65 / 0.35)  0%, transparent 50%),
+            radial-gradient(ellipse 80%  60% at 50% 50%,  oklch(76% 0.22 72 / 0.12)  0%, transparent 65%),
+            radial-gradient(ellipse 55%  40% at 88% 85%,  oklch(52% 0.28 345 / 0.18) 0%, transparent 55%),
+            radial-gradient(ellipse 100% 40% at 50% 100%, oklch(16% 0.08 22 / 0.80)  0%, transparent 50%)
           `,
           zIndex: 1,
         }}
@@ -130,7 +137,7 @@ export default function GoldEditionSection() {
         className="absolute inset-0 pointer-events-none"
         style={{ zIndex: 2 }}
         initial={{ x: '-100%', opacity: 0 }}
-        animate={inView && !prefersReduced ? { x: '200%', opacity: [0, 0.07, 0] } : {}}
+        animate={inView && !prefersReduced ? { x: '200%', opacity: [0, 0.18, 0] } : {}}
         transition={{ duration: 3.8, ease: 'easeInOut', delay: 0.6 }}
       >
         <div
@@ -138,7 +145,7 @@ export default function GoldEditionSection() {
           style={{
             width: '45%',
             background:
-              'linear-gradient(105deg, transparent 30%, oklch(84% 0.09 82 / 0.40) 50%, transparent 70%)',
+              'linear-gradient(105deg, transparent 30%, oklch(76% 0.22 72 / 0.55) 50%, transparent 70%)',
           }}
         />
       </motion.div>

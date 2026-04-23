@@ -16,17 +16,44 @@ import { useEffect, useRef } from 'react';
  * Respects prefers-reduced-motion: all canvas animation loops are gated.
  */
 
-// Per-room ambient glow definitions — each room has its own thermal signature
+// Per-room ambient glow — vibrant, saturated, grand wedding energy
 const ROOM_GLOWS: Record<string, string> = {
-  'entry':     'radial-gradient(ellipse 90% 55% at 50% -5%,  oklch(74% 0.13 80 / 0.15) 0%, transparent 55%)',
-  'rose-silk': 'radial-gradient(ellipse 80% 55% at 72% 8%,   oklch(83% 0.048 34 / 0.20) 0%, transparent 55%)',
-  'spotlight': 'radial-gradient(ellipse 55% 75% at 50% -12%, oklch(84% 0.09 82 / 0.20) 0%, transparent 55%)',
-  'parchment': 'radial-gradient(ellipse 70% 55% at 18% 0%,   oklch(84% 0.09 82 / 0.14) 0%, transparent 55%)',
-  'mystery':   'radial-gradient(ellipse 55% 45% at 50% 45%,  oklch(91% 0.06 72 / 0.08) 0%, transparent 65%)',
-  'cohort':    'radial-gradient(ellipse 72% 55% at 50% -5%,  oklch(84% 0.09 82 / 0.11) 0%, transparent 60%)',
-  'collector': 'radial-gradient(ellipse 60% 50% at 50% 40%,  oklch(74% 0.12 80 / 0.07) 0%, transparent 65%)',
-  'questions': 'radial-gradient(ellipse 60% 40% at 50% -5%,  oklch(91% 0.04 65 / 0.09) 0%, transparent 60%)',
-  'guestlist': 'radial-gradient(ellipse 65% 50% at 50% 8%,   oklch(84% 0.09 82 / 0.09) 0%, transparent 60%)',
+  'entry': [
+    'radial-gradient(ellipse 92% 55% at 50% -5%,  oklch(72% 0.22 65  / 0.45) 0%, transparent 52%)',
+    'radial-gradient(ellipse 40% 30% at  8% 92%,  oklch(32% 0.22 18  / 0.35) 0%, transparent 55%)',
+    'radial-gradient(ellipse 35% 25% at 92% 88%,  oklch(52% 0.28 345 / 0.25) 0%, transparent 55%)',
+  ].join(', '),
+  'rose-silk': [
+    'radial-gradient(ellipse 80% 55% at 70%  8%,  oklch(52% 0.28 345 / 0.45) 0%, transparent 55%)',
+    'radial-gradient(ellipse 55% 40% at 18% 80%,  oklch(72% 0.22 65  / 0.28) 0%, transparent 55%)',
+  ].join(', '),
+  'spotlight': [
+    'radial-gradient(ellipse 55% 78% at 50% -14%, oklch(72% 0.22 65  / 0.55) 0%, transparent 55%)',
+    'radial-gradient(ellipse 30% 40% at 50%  48%, oklch(76% 0.22 72  / 0.35) 0%, transparent 60%)',
+  ].join(', '),
+  'parchment': [
+    'radial-gradient(ellipse 72% 55% at 18%  0%,  oklch(76% 0.22 72  / 0.40) 0%, transparent 55%)',
+    'radial-gradient(ellipse 40% 30% at 85% 85%,  oklch(72% 0.22 65  / 0.20) 0%, transparent 55%)',
+  ].join(', '),
+  'mystery': [
+    'radial-gradient(ellipse 60% 50% at 50%  45%, oklch(30% 0.18 270 / 0.38) 0%, transparent 65%)',
+    'radial-gradient(ellipse 80% 40% at 50% -10%, oklch(32% 0.22 18  / 0.25) 0%, transparent 55%)',
+  ].join(', '),
+  'cohort': [
+    'radial-gradient(ellipse 75% 55% at 50%  -5%, oklch(28% 0.14 165 / 0.40) 0%, transparent 58%)',
+    'radial-gradient(ellipse 40% 35% at 85%  90%, oklch(72% 0.22 65  / 0.18) 0%, transparent 55%)',
+  ].join(', '),
+  'collector': [
+    'radial-gradient(ellipse 65% 50% at 50%  40%, oklch(74% 0.12 80  / 0.12) 0%, transparent 65%)',
+    'radial-gradient(ellipse 80% 40% at 50% -10%, oklch(32% 0.22 18  / 0.28) 0%, transparent 50%)',
+  ].join(', '),
+  'questions': [
+    'radial-gradient(ellipse 65% 40% at 50%  -5%, oklch(76% 0.22 72  / 0.30) 0%, transparent 58%)',
+  ].join(', '),
+  'guestlist': [
+    'radial-gradient(ellipse 68% 50% at 50%   8%, oklch(52% 0.28 345 / 0.28) 0%, transparent 58%)',
+    'radial-gradient(ellipse 40% 30% at 15%  85%, oklch(72% 0.22 65  / 0.18) 0%, transparent 55%)',
+  ].join(', '),
 };
 
 export default function CinematicLayers() {
@@ -136,8 +163,23 @@ export default function CinematicLayers() {
       };
     }
 
+    // ── INITIAL CELEBRATION: fireworks burst on page load ───────
+    if (!reducedMotion) {
+      setTimeout(() => distantFireworks(1.1), 1800);
+    }
+
     // ── GOLD PARTICLE SYSTEM ────────────────────────────────────
-    const GOLD_COLORS = ['#C9A84C','#DFC07A','#B8922A','#E8D08A','#D4B060','#F0E0A0'];
+    // Vivid marigold + saffron + hot pink + classic gold mix
+    const GOLD_COLORS = [
+      '#FF8C00', // vivid marigold orange
+      '#FFD700', // bright gold
+      '#FFA500', // saffron
+      '#FF6B00', // deep saffron
+      '#C9A84C', // classic antique gold
+      '#FF1493', // hot pink / magenta
+      '#FF4500', // orange-red
+      '#DFC07A', // warm gold
+    ];
 
     interface Particle {
       x: number; y: number; r: number;
@@ -186,12 +228,14 @@ export default function CinematicLayers() {
     drawParticles();
 
     // ── PETAL SYSTEM ────────────────────────────────────────────
+    // Vibrant wedding petals: marigold, saffron, hot pink, crimson, gold-yellow
     const PETAL_COLORS = [
-      { r:220, g:155, b:60  },
-      { r:210, g:120, b:80  },
-      { r:215, g:165, b:120 },
-      { r:200, g:140, b:70  },
-      { r:225, g:180, b:90  },
+      { r:255, g:140, b:0   }, // vivid marigold orange
+      { r:255, g:80,  b:30  }, // bright saffron
+      { r:220, g:20,  b:100 }, // hot pink / magenta
+      { r:200, g:0,   b:40  }, // deep crimson rose
+      { r:255, g:200, b:0   }, // bright gold-yellow
+      { r:255, g:100, b:0   }, // deep saffron
     ];
 
     interface Petal {
@@ -244,8 +288,15 @@ export default function CinematicLayers() {
 
     // ── CELEBRATION + DISTANT FIREWORKS SYSTEM ──────────────────
     const CONFETTI_COLORS = [
-      '#C9A84C','#DFC07A','#E8C080','#D4907A','#E8D5C4',
-      '#B8922A','#F0D890','#C87060',
+      '#FF8C00', // marigold
+      '#FFD700', // gold
+      '#FF1493', // hot pink
+      '#DC143C', // crimson
+      '#FF6B00', // saffron
+      '#C9A84C', // antique gold
+      '#FF4500', // orange-red
+      '#F0D890', // pale gold
+      '#FF69B4', // rose pink
     ];
 
     interface CelebParticle {

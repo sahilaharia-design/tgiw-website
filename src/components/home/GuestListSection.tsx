@@ -29,16 +29,27 @@ export default function GuestListSection() {
     <section
       ref={ref}
       data-room="guestlist"
-      className="relative overflow-hidden room-light"
-      style={{ paddingBlock: 'clamp(8rem, 16vw, 14rem)' }}
+      className="relative overflow-hidden"
+      style={{
+        paddingBlock: 'clamp(8rem, 16vw, 14rem)',
+        background: `linear-gradient(
+          160deg,
+          oklch(90% 0.055 68) 0%,
+          oklch(86% 0.07 72)  50%,
+          oklch(88% 0.06 65) 100%
+        )`,
+      }}
     >
-      {/* Warm ivory-deep atmosphere — the final room */}
+      {/* Saffron-rose bloom — celebratory arrival glow */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 65% 50% at 50% 10%, oklch(84% 0.09 82 / 0.10) 0%, transparent 60%)',
+          background: `
+            radial-gradient(ellipse 70% 55% at 50% 0%,   oklch(76% 0.22 72 / 0.38) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 35% at 12% 90%,  oklch(52% 0.28 345 / 0.16) 0%, transparent 55%),
+            radial-gradient(ellipse 35% 30% at 90% 88%,  oklch(72% 0.22 65 / 0.18) 0%, transparent 55%)
+          `,
         }}
       />
 
@@ -95,7 +106,7 @@ export default function GuestListSection() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Your email address"
-                  className="flex-1 bg-transparent border border-gold/30 px-5 py-4 text-maroon placeholder-maroon/30 focus:outline-none focus:border-gold/60 transition-colors duration-400"
+                  className="flex-1 bg-transparent border border-gold/40 px-5 py-4 text-maroon placeholder-maroon/30 focus:outline-none focus:border-gold/70 transition-colors duration-400"
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
                     fontSize: '0.7rem',

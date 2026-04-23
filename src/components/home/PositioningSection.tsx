@@ -3,21 +3,32 @@ import RevealBlock from '../cinematic/RevealBlock';
 /**
  * "For families who don't send invitations. They send experiences."
  * Single thought. Large. Unhurried.
+ * Rich warm amber-saffron background — feels celebratory and golden.
  */
 export default function PositioningSection() {
   return (
     <section
       data-room="parchment"
-      className="relative overflow-hidden room-light"
-      style={{ paddingBlock: 'clamp(7rem, 15vw, 14rem)' }}
+      className="relative overflow-hidden"
+      style={{
+        paddingBlock: 'clamp(7rem, 15vw, 14rem)',
+        background: `linear-gradient(
+          145deg,
+          oklch(88% 0.07 68) 0%,
+          oklch(84% 0.09 72) 45%,
+          oklch(86% 0.08 65) 100%
+        )`,
+      }}
     >
-      {/* Warm honeyed light — diya warmth from the upper left */}
+      {/* Marigold bloom from upper left — diya warmth */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 65% 55% at 15% 10%, oklch(84% 0.09 82 / 0.16) 0%, transparent 60%)',
+          background: `
+            radial-gradient(ellipse 65% 55% at 10% 5%,  oklch(76% 0.22 72 / 0.38) 0%, transparent 55%),
+            radial-gradient(ellipse 45% 40% at 88% 92%, oklch(72% 0.22 65 / 0.28) 0%, transparent 55%)
+          `,
         }}
       />
 
@@ -44,9 +55,16 @@ export default function PositioningSection() {
 
           <RevealBlock delay={0.42}>
             <div className="mt-14 flex items-start gap-6 max-w-xl">
-              <div className="w-px h-16 bg-gradient-to-b from-gold/50 to-transparent flex-shrink-0 mt-1" />
+              <div
+                className="flex-shrink-0 mt-1"
+                style={{
+                  width: '1px',
+                  height: '72px',
+                  background: 'linear-gradient(to bottom, oklch(72% 0.22 65 / 0.80), transparent)',
+                }}
+              />
               <p
-                className="text-maroon/55 leading-relaxed text-balance"
+                className="text-maroon/65 leading-relaxed text-balance"
                 style={{
                   fontFamily: "'Inter Tight', sans-serif",
                   fontSize: '0.72rem',

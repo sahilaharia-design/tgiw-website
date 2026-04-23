@@ -14,16 +14,25 @@ export default function FAQSection() {
   return (
     <section
       data-room="questions"
-      className="relative overflow-hidden room-light"
-      style={{ paddingBlock: 'clamp(7rem, 14vw, 13rem)' }}
+      className="relative overflow-hidden"
+      style={{
+        paddingBlock: 'clamp(7rem, 14vw, 13rem)',
+        background: `linear-gradient(
+          180deg,
+          oklch(93% 0.04 68) 0%,
+          oklch(91% 0.05 70) 100%
+        )`,
+      }}
     >
-      {/* Airy question-room light */}
+      {/* Warm saffron-parchment glow from top */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 60% 40% at 50% 0%, oklch(91% 0.04 65 / 0.10) 0%, transparent 60%)',
+          background: `
+            radial-gradient(ellipse 65% 45% at 50% 0%, oklch(76% 0.22 72 / 0.28) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 30% at 85% 95%, oklch(72% 0.22 65 / 0.16) 0%, transparent 55%)
+          `,
         }}
       />
 

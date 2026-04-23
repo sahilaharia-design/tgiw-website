@@ -4,30 +4,40 @@ import { PREORDER } from '../../utils/constants';
 
 /**
  * Pricing table — Founders Cohort.
- * AED 199 deposit / AED 899 total / 90 days / Limited 500.
- * Three quiet stats + one primary CTA + one ghost secondary.
+ * Deep emerald background — the ceremonial gathering room.
+ * Ivory text, full-opacity gold borders.
  */
 const STATS = [
-  { value: `AED ${PREORDER.depositAED}`,   label: 'Deposit to reserve'       },
-  { value: `AED ${PREORDER.totalAED}`,     label: 'Total when it ships'      },
-  { value: `${PREORDER.cohortShipMonths * 30} days`, label: 'To your door'   },
-  { value: `${PREORDER.cohortSize}`,        label: 'Founders seats only'     },
+  { value: `AED ${PREORDER.depositAED}`,               label: 'Deposit to reserve'   },
+  { value: `AED ${PREORDER.totalAED}`,                  label: 'Total when it ships'  },
+  { value: `${PREORDER.cohortShipMonths * 30} days`,    label: 'To your door'         },
+  { value: `${PREORDER.cohortSize}`,                    label: 'Founders seats only'  },
 ];
 
 export default function CohortSection() {
   return (
     <section
       data-room="cohort"
-      className="relative overflow-hidden room-light"
-      style={{ paddingBlock: 'clamp(7rem, 14vw, 13rem)' }}
+      className="dark-section relative overflow-hidden"
+      style={{
+        paddingBlock: 'clamp(7rem, 14vw, 13rem)',
+        background: `linear-gradient(
+          160deg,
+          oklch(22% 0.14 165) 0%,
+          oklch(20% 0.16 175) 50%,
+          oklch(18% 0.12 180) 100%
+        )`,
+      }}
     >
-      {/* Warm cohort glow — the readying-room before the ceremony */}
+      {/* Emerald bloom + warm gold corner */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 70% 55% at 50% 0%, oklch(84% 0.09 82 / 0.12) 0%, transparent 60%)',
+          background: `
+            radial-gradient(ellipse 75% 55% at 50% -5%, oklch(28% 0.14 165 / 0.55) 0%, transparent 58%),
+            radial-gradient(ellipse 40% 35% at 88% 88%, oklch(72% 0.22 65  / 0.22) 0%, transparent 55%)
+          `,
         }}
       />
 
@@ -36,23 +46,45 @@ export default function CohortSection() {
         <RevealBlock delay={0}>
           <div className="flex flex-col items-center text-center mb-16">
             <div className="flex items-center gap-4 mb-8">
-              <span className="hairline" />
-              <span className="eyebrow">{PREORDER.cohortName}</span>
-              <span className="hairline" />
+              <span
+                className="h-px w-10"
+                style={{ background: 'oklch(84% 0.09 82 / 0.70)' }}
+              />
+              <span
+                style={{
+                  fontFamily: "'Inter Tight', sans-serif",
+                  fontSize: '0.6rem',
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'oklch(84% 0.09 82)',
+                }}
+              >
+                {PREORDER.cohortName}
+              </span>
+              <span
+                className="h-px w-10"
+                style={{ background: 'oklch(84% 0.09 82 / 0.70)' }}
+              />
             </div>
-            <h2 className="cg-headline text-maroon text-balance max-w-2xl mb-6">
+            <h2
+              className="cg-headline text-balance max-w-2xl mb-6"
+              style={{ color: 'oklch(96% 0.02 65)' }}
+            >
               Reserve your seat.
               <br />
-              <em>Your Shaadi ships in 90 days.</em>
+              <em style={{ color: 'oklch(76% 0.22 72)' }}>
+                Your Shaadi ships in 90 days.
+              </em>
             </h2>
             <p
-              className="text-maroon/50 max-w-sm text-balance"
+              className="max-w-sm text-balance"
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
                 fontSize: '0.68rem',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 lineHeight: 2.0,
+                color: 'oklch(84% 0.09 82 / 0.60)',
               }}
             >
               A refundable deposit holds your place.
@@ -63,23 +95,29 @@ export default function CohortSection() {
         </RevealBlock>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-gold/12 border border-gold/12 max-w-3xl mx-auto mb-14">
+        <div
+          className="grid grid-cols-2 md:grid-cols-4 max-w-3xl mx-auto mb-14"
+          style={{ gap: '1px', background: 'oklch(84% 0.09 82 / 0.35)', border: '1px solid oklch(84% 0.09 82 / 0.35)' }}
+        >
           {STATS.map(({ value, label }, i) => (
-            <RevealBlock key={label} delay={0.1 + i * 0.08}>
-              <div className="bg-ivory p-8 md:p-10 flex flex-col items-center text-center gap-3">
+            <RevealBlock key={label} delay={0.10 + i * 0.08}>
+              <div
+                className="flex flex-col items-center text-center gap-3 p-8 md:p-10"
+                style={{ background: 'oklch(22% 0.14 165)' }}
+              >
                 <span
-                  className="cg-large text-maroon"
-                  style={{ fontStyle: 'normal', fontWeight: 300 }}
+                  className="cg-large"
+                  style={{ fontStyle: 'normal', fontWeight: 300, color: 'oklch(76% 0.22 72)' }}
                 >
                   {value}
                 </span>
                 <span
-                  className="text-maroon/45"
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
                     fontSize: '0.58rem',
                     letterSpacing: '0.22em',
                     textTransform: 'uppercase',
+                    color: 'oklch(84% 0.09 82 / 0.70)',
                   }}
                 >
                   {label}
@@ -94,26 +132,33 @@ export default function CohortSection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
             <Link
               to="/product"
-              className="btn-primary"
+              className="btn-saffron"
               onClick={() => (window as any)._celebrate?.()}
             >
               Reserve · AED {PREORDER.depositAED}
             </Link>
-            <Link to="/product" className="btn-ghost">
+            <Link
+              to="/product"
+              className="btn-ghost"
+              style={{
+                color: 'oklch(84% 0.09 82)',
+                borderColor: 'oklch(84% 0.09 82 / 0.45)',
+              }}
+            >
               What's inside?
             </Link>
           </div>
         </RevealBlock>
 
-        {/* Fine print */}
         <RevealBlock delay={0.65}>
           <p
-            className="text-center text-maroon/30 mt-8"
+            className="text-center mt-8"
             style={{
               fontFamily: "'Inter Tight', sans-serif",
               fontSize: '0.55rem',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
+              color: 'oklch(84% 0.09 82 / 0.35)',
             }}
           >
             Full refund anytime before production begins · No payment today beyond deposit

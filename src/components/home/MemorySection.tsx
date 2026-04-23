@@ -2,8 +2,8 @@ import RevealBlock from '../cinematic/RevealBlock';
 
 /**
  * Three memories, three roman numerals.
- * The rhythm of a shaadi night — chai at the entrance, eat more, story again.
- * No product explanation. Just the feeling of remembering.
+ * Rich warm golden-parchment background — noticeably honeyed, not pale.
+ * Gold accents at full visibility.
  */
 const MEMORIES = [
   {
@@ -25,15 +25,20 @@ export default function MemorySection() {
     <section
       data-room="parchment"
       className="relative overflow-hidden room-light"
-      style={{ paddingBlock: 'clamp(6rem, 12vw, 11rem)' }}
+      style={{
+        paddingBlock: 'clamp(6rem, 12vw, 11rem)',
+        background: 'oklch(89% 0.06 68)',
+      }}
     >
-      {/* Soft parchment warmth — amber from the top center */}
+      {/* Warm marigold bloom from upper center */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 65% 50% at 50% 5%, oklch(84% 0.09 82 / 0.14) 0%, transparent 60%)',
+          background: `
+            radial-gradient(ellipse 68% 50% at 50% 0%,   oklch(76% 0.22 72  / 0.45) 0%, transparent 58%),
+            radial-gradient(ellipse 40% 30% at 90% 90%,  oklch(72% 0.22 65  / 0.20) 0%, transparent 55%)
+          `,
         }}
       />
 
@@ -50,9 +55,9 @@ export default function MemorySection() {
           {MEMORIES.map(({ numeral, line }, i) => (
             <RevealBlock key={numeral} delay={0.12 + i * 0.18} y={20}>
               <div className="flex items-start gap-8">
-                {/* Roman numeral — ceremonial index mark */}
+                {/* Roman numeral */}
                 <span
-                  className="flex-shrink-0 text-gold/40 select-none"
+                  className="flex-shrink-0 select-none"
                   style={{
                     fontFamily: "'Cormorant Garamond', Georgia, serif",
                     fontStyle: 'italic',
@@ -62,26 +67,32 @@ export default function MemorySection() {
                     letterSpacing: '0.05em',
                     minWidth: '1.6rem',
                     textAlign: 'right',
+                    color: 'var(--gold)',
                   }}
                 >
                   {numeral}
                 </span>
 
-                {/* Divider hairline */}
+                {/* Divider */}
                 <div
-                  className="flex-shrink-0 w-px bg-gold/25 self-stretch mt-1"
+                  className="flex-shrink-0 self-stretch mt-1"
+                  style={{ width: '1px', background: 'oklch(74% 0.125 80 / 0.70)' }}
                   aria-hidden
                 />
 
                 {/* Memory line */}
-                <p className="cg-large text-maroon/80 text-balance" style={{ lineHeight: 1.38 }}>
+                <p className="cg-large text-maroon text-balance" style={{ lineHeight: 1.38 }}>
                   {line}
                 </p>
               </div>
 
-              {/* Thin separator between items */}
               {i < MEMORIES.length - 1 && (
-                <div className="mt-14 h-px w-full bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+                <div
+                  className="mt-14 h-px w-full"
+                  style={{
+                    background: 'linear-gradient(to right, transparent, oklch(74% 0.125 80 / 0.55), transparent)',
+                  }}
+                />
               )}
             </RevealBlock>
           ))}
