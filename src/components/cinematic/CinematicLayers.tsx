@@ -4,25 +4,49 @@ import { useEffect, useRef } from 'react';
  * CinematicLayers — global environmental systems.
  * Mounted once at App root. Persists across all page navigations.
  *
- * Layers (z-index order):
- *  1  particle-canvas  — slow gold dust ceiling
- *  2  petal-canvas     — marigold / saffron drift
- *  3  jaali-overlay    — Mughal lattice, parallaxes at 6% scroll speed
- *  4  vignette-breath  — soft breathing edge vignette
- * 10  celebrate-canvas — fireworks / sparks at emotional moments
+ * Depth order (z-index):
+ *   0  room-ambient     — cross-fading room glow overlay (opacity cross-fade on section entry)
+ *   0  canopy-drift     — marigold ceiling gradient, slow CSS oscillation
+ *   1  particle-canvas  — slow gold dust ceiling (canvas)
+ *   2  petal-canvas     — marigold / saffron drift (canvas)
+ *   3  jaali-overlay    — Mughal lattice; translateY(y*0.06) + rotate(y*0.003deg)
+ *   4  vignette-breath  — soft breathing edge vignette (CSS animation)
+ *  10  celebrate-canvas — fireworks / sparks at emotional moments
+ *
+ * Respects prefers-reduced-motion: all canvas animation loops are gated.
  */
+
+// Per-room ambient glow definitions — each room has its own thermal signature
+const ROOM_GLOWS: Record<string, string> = {
+  'entry':     'radial-gradient(ellipse 90% 55% at 50% -5%,  oklch(74% 0.13 80 / 0.15) 0%, transparent 55%)',
+  'rose-silk': 'radial-gradient(ellipse 80% 55% at 72% 8%,   oklch(83% 0.048 34 / 0.20) 0%, transparent 55%)',
+  'spotlight': 'radial-gradient(ellipse 55% 75% at 50% -12%, oklch(84% 0.09 82 / 0.20) 0%, transparent 55%)',
+  'parchment': 'radial-gradient(ellipse 70% 55% at 18% 0%,   oklch(84% 0.09 82 / 0.14) 0%, transparent 55%)',
+  'mystery':   'radial-gradient(ellipse 55% 45% at 50% 45%,  oklch(91% 0.06 72 / 0.08) 0%, transparent 65%)',
+  'cohort':    'radial-gradient(ellipse 72% 55% at 50% -5%,  oklch(84% 0.09 82 / 0.11) 0%, transparent 60%)',
+  'collector': 'radial-gradient(ellipse 60% 50% at 50% 40%,  oklch(74% 0.12 80 / 0.07) 0%, transparent 65%)',
+  'questions': 'radial-gradient(ellipse 60% 40% at 50% -5%,  oklch(91% 0.04 65 / 0.09) 0%, transparent 60%)',
+  'guestlist': 'radial-gradient(ellipse 65% 50% at 50% 8%,   oklch(84% 0.09 82 / 0.09) 0%, transparent 60%)',
+};
+
 export default function CinematicLayers() {
-  const particleRef  = useRef<HTMLCanvasElement>(null);
-  const petalRef     = useRef<HTMLCanvasElement>(null);
-  const celebRef     = useRef<HTMLCanvasElement>(null);
-  const jaaliRef     = useRef<HTMLDivElement>(null);
+  const particleRef = useRef<HTMLCanvasElement>(null);
+  const petalRef    = useRef<HTMLCanvasElement>(null);
+  const celebRef    = useRef<HTMLCanvasElement>(null);
+  const jaaliRef    = useRef<HTMLDivElement>(null);
+  const ambientRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const pCanvas = particleRef.current!;
     const fCanvas = petalRef.current!;
     const cCanvas = celebRef.current!;
     const jaali   = jaaliRef.current!;
-    if (!pCanvas || !fCanvas || !cCanvas || !jaali) return;
+    const ambient = ambientRef.current!;
+    if (!pCanvas || !fCanvas || !cCanvas || !jaali || !ambient) return;
+
+    // ── REDUCED MOTION GATE ─────────────────────────────────────
+    // Canvas animation loops are skipped. CSS transitions/animations still run.
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const pCtx = pCanvas.getContext('2d')!;
     const fCtx = fCanvas.getContext('2d')!;
@@ -39,13 +63,19 @@ export default function CinematicLayers() {
     }
     resize();
 
-    // ── SCROLL: jaali parallax + CSS --scroll-y ──────────────
+    // ── SCROLL: parallax at multiple speeds ─────────────────────
+    // jaali:   translateY(y * 0.06) + rotate(y * 0.003deg) — slightly faster than particles
+    // ambient: translateY(y * 0.02)                         — mid-speed gradient drift
     let scrollTicking = false;
     function onScroll() {
       if (!scrollTicking) {
         requestAnimationFrame(() => {
           const y = window.scrollY;
-          jaali.style.transform = `translateY(${y * 0.06}px)`;
+          // Jaali: translate + subtle rotate (angle shifts slightly between sections)
+          jaali.style.transform = `translateY(${y * 0.06}px) rotate(${y * 0.003}deg)`;
+          // Ambient glow: slower parallax (feels deeper / farther away)
+          ambient.style.transform = `translateY(${y * 0.02}px)`;
+          // CSS variable for any component that wants scroll position
           document.documentElement.style.setProperty('--scroll-y', `${y}px`);
           scrollTicking = false;
         });
@@ -54,9 +84,60 @@ export default function CinematicLayers() {
     }
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // ── GOLD PARTICLE SYSTEM ──────────────────────────────────
+    // ── ROOM AMBIENT CROSS-FADE ─────────────────────────────────
+    // Fade out → swap gradient → fade in. CSS opacity transition handles the curve.
+    let crossFadeTimer: ReturnType<typeof setTimeout>;
+    let currentRoom = '';
+    function transitionRoom(room: string) {
+      const glow = ROOM_GLOWS[room];
+      if (!glow || room === currentRoom) return;
+      currentRoom = room;
+      clearTimeout(crossFadeTimer);
+      ambient.style.opacity = '0';
+      crossFadeTimer = setTimeout(() => {
+        ambient.style.background = glow;
+        ambient.style.opacity = '1';
+      }, 480); // Change background after opacity reaches ~0
+    }
+
+    // ── SECTION ROOM LIGHTING ───────────────────────────────────
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        // Find the most-intersecting visible room
+        let maxRatio = 0;
+        let activeRoom = '';
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            activeRoom = (entry.target as HTMLElement).dataset.room ?? '';
+          }
+        }
+        if (activeRoom) transitionRoom(activeRoom);
+      },
+      { threshold: [0.2, 0.4, 0.6] }
+    );
+    // Observe after a tick so Home.tsx sections have mounted
+    const observeTimer = setTimeout(() => {
+      document.querySelectorAll('[data-room]').forEach(el => sectionObserver.observe(el));
+    }, 150);
+
+    if (reducedMotion) {
+      // Still wire up room lighting + celebrations at reduced fidelity
+      (window as any)._celebrate     = () => {};
+      (window as any)._distantFireworks = () => {};
+      return () => {
+        clearTimeout(crossFadeTimer);
+        clearTimeout(observeTimer);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', resize);
+        sectionObserver.disconnect();
+        delete (window as any)._celebrate;
+        delete (window as any)._distantFireworks;
+      };
+    }
+
+    // ── GOLD PARTICLE SYSTEM ────────────────────────────────────
     const GOLD_COLORS = ['#C9A84C','#DFC07A','#B8922A','#E8D08A','#D4B060','#F0E0A0'];
-    let particleCount = 60;
 
     interface Particle {
       x: number; y: number; r: number;
@@ -72,14 +153,14 @@ export default function CinematicLayers() {
         r: Math.random() * 1.6 + 0.3,
         vy: -(Math.random() * 0.42 + 0.10),
         vx: (Math.random() - 0.5) * 0.28,
-        alpha: Math.random() * 0.50 + 0.08,
+        alpha: Math.random() * 0.45 + 0.06,
         color: GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)],
         tw: Math.random() * Math.PI * 2,
         tws: Math.random() * 0.014 + 0.004,
       };
     }
 
-    let particles: Particle[] = Array.from({ length: particleCount }, () => {
+    let particles: Particle[] = Array.from({ length: 55 }, () => {
       const p = makeParticle(); p.y = Math.random() * H; return p;
     });
 
@@ -87,7 +168,9 @@ export default function CinematicLayers() {
       pCtx.clearRect(0, 0, W, H);
       for (const p of particles) {
         p.y += p.vy; p.x += p.vx; p.tw += p.tws;
-        const a = p.alpha * (0.65 + 0.35 * Math.sin(p.tw));
+        // Particles concentrate more in upper 60% (canopy effect)
+        const yFade = p.y < H * 0.6 ? 1.0 : Math.max(0, 1 - (p.y - H * 0.6) / (H * 0.4));
+        const a = p.alpha * (0.60 + 0.40 * Math.sin(p.tw)) * yFade;
         pCtx.globalAlpha = a;
         pCtx.fillStyle = p.color;
         pCtx.beginPath();
@@ -102,13 +185,13 @@ export default function CinematicLayers() {
     }
     drawParticles();
 
-    // ── PETAL SYSTEM ──────────────────────────────────────────
+    // ── PETAL SYSTEM ────────────────────────────────────────────
     const PETAL_COLORS = [
-      { r:220, g:155, b:60 },
-      { r:210, g:120, b:80 },
+      { r:220, g:155, b:60  },
+      { r:210, g:120, b:80  },
       { r:215, g:165, b:120 },
-      { r:200, g:140, b:70 },
-      { r:225, g:180, b:90 },
+      { r:200, g:140, b:70  },
+      { r:225, g:180, b:90  },
     ];
 
     interface Petal {
@@ -125,17 +208,17 @@ export default function CinematicLayers() {
         size: Math.random() * 6 + 3,
         angle: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.012,
-        vy: Math.random() * 0.35 + 0.12,
-        vx: (Math.random() - 0.5) * 0.22,
+        vy: Math.random() * 0.32 + 0.10,
+        vx: (Math.random() - 0.5) * 0.20,
         sway: Math.random() * Math.PI * 2,
-        swaySpeed: Math.random() * 0.008 + 0.003,
+        swaySpeed: Math.random() * 0.007 + 0.003,
         swayAmt: Math.random() * 0.5 + 0.2,
-        alpha: Math.random() * 0.18 + 0.04,
+        alpha: Math.random() * 0.16 + 0.04,
         r: c.r, g: c.g, b: c.b,
       };
     }
 
-    let petals: Petal[] = Array.from({ length: 28 }, makePetal);
+    let petals: Petal[] = Array.from({ length: 26 }, makePetal);
 
     function drawPetals() {
       fCtx.clearRect(0, 0, W, H);
@@ -159,7 +242,7 @@ export default function CinematicLayers() {
     }
     drawPetals();
 
-    // ── CELEBRATION + DISTANT FIREWORKS SYSTEM ────────────────
+    // ── CELEBRATION + DISTANT FIREWORKS SYSTEM ──────────────────
     const CONFETTI_COLORS = [
       '#C9A84C','#DFC07A','#E8C080','#D4907A','#E8D5C4',
       '#B8922A','#F0D890','#C87060',
@@ -178,7 +261,7 @@ export default function CinematicLayers() {
     let celebRaf = 0;
 
     function burst(ox: number, oy: number, intensity = 1) {
-      const count = Math.floor(45 * intensity);
+      const count = Math.floor(40 * intensity);
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 7 * intensity + 2;
@@ -195,7 +278,7 @@ export default function CinematicLayers() {
           isRect: Math.random() > 0.4,
         });
       }
-      for (let i = 0; i < Math.floor(18 * intensity); i++) {
+      for (let i = 0; i < Math.floor(16 * intensity); i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 5 + 3;
         celebParticles.push({
@@ -211,32 +294,30 @@ export default function CinematicLayers() {
       if (!celebActive) { celebActive = true; celebLoop(); }
     }
 
-    /** Distant fireworks — elegant arcing trails from upper screen edges */
+    /** Distant fireworks — elegant arcing trails from lower screen to upper */
     function distantFireworks(intensity = 1) {
-      const launchSites = Math.floor(3 * intensity) + 2;
-      for (let s = 0; s < launchSites; s++) {
-        const delay = s * 180;
+      const sites = Math.floor(3 * intensity) + 2;
+      for (let s = 0; s < sites; s++) {
         setTimeout(() => {
-          // Launch point from lower third, arc upward
+          // Arc from lower third, burst in upper 8–25%
           const lx = W * (0.2 + Math.random() * 0.6);
-          const ly = H * (0.5 + Math.random() * 0.3);
-          // Burst point in upper third
-          const bx = lx + (Math.random() - 0.5) * 180;
-          const by = H * (0.08 + Math.random() * 0.25);
+          const ly = H * (0.52 + Math.random() * 0.28);
+          const bx = lx + (Math.random() - 0.5) * 200;
+          const by = H * (0.08 + Math.random() * 0.22);
 
-          // Trailing spark up to burst
-          for (let i = 0; i < 8; i++) {
-            const t = i / 8;
+          // Trailing sparks along the trajectory
+          for (let i = 0; i < 10; i++) {
+            const t = i / 10;
             celebParticles.push({
               type: 'spark',
               x: lx + (bx - lx) * t,
               y: ly + (by - ly) * t,
               vx: 0, vy: -0.3,
               gravity: 0,
-              len: 12,
+              len: 14,
               color: '#DFC07A',
-              alpha: 0.5 + t * 0.4,
-              fade: 0.025,
+              alpha: 0.4 + t * 0.5,
+              fade: 0.022,
             });
           }
 
@@ -247,27 +328,27 @@ export default function CinematicLayers() {
             vx: 0, vy: 0, gravity: 0,
             r: 0,
             color: CONFETTI_COLORS[Math.floor(Math.random() * 3)],
-            alpha: 0.7, fade: 0.018,
+            alpha: 0.65, fade: 0.016,
           });
 
-          // Gold spark trails radiating outward from burst
-          for (let i = 0; i < Math.floor(22 * intensity); i++) {
+          // Gold spark trails radiating — near-weightless (gravity: 0.05)
+          for (let i = 0; i < Math.floor(24 * intensity); i++) {
             const angle = Math.random() * Math.PI * 2;
             const speed = Math.random() * 3.5 + 1.5;
             celebParticles.push({
               type: 'spark',
               x: bx, y: by,
               vx: Math.cos(angle) * speed,
-              vy: Math.sin(angle) * speed - 1,
-              gravity: 0.05,
-              len: Math.random() * 24 + 10,
+              vy: Math.sin(angle) * speed - 1.2,
+              gravity: 0.05, // near-weightless — drifts elegantly
+              len: Math.random() * 26 + 10,
               color: CONFETTI_COLORS[Math.floor(Math.random() * 4)],
-              alpha: 0.85, fade: 0.012 + Math.random() * 0.008,
+              alpha: 0.80, fade: 0.010 + Math.random() * 0.008,
             });
           }
 
           if (!celebActive) { celebActive = true; celebLoop(); }
-        }, delay);
+        }, s * 190);
       }
     }
 
@@ -291,17 +372,17 @@ export default function CinematicLayers() {
           else { cCtx.beginPath(); cCtx.arc(0, 0, p.size! * 0.45, 0, Math.PI * 2); cCtx.fill(); }
           cCtx.restore();
         } else if (p.type === 'spark') {
-          const nx = p.x - p.vx * 0.7;
-          const ny = p.y - p.vy * 0.7;
+          const nx = p.x - p.vx * 0.75;
+          const ny = p.y - p.vy * 0.75;
           cCtx.beginPath(); cCtx.moveTo(nx, ny); cCtx.lineTo(p.x, p.y);
           cCtx.strokeStyle = p.color;
           cCtx.globalAlpha = Math.max(0, p.alpha);
-          cCtx.lineWidth = 1.4;
+          cCtx.lineWidth = 1.3;
           cCtx.stroke();
         } else if (p.type === 'bloom') {
-          p.r = (p.r || 0) + 2.5;
+          p.r = (p.r || 0) + 2.8;
           const grad = cCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r!);
-          grad.addColorStop(0, p.color + 'cc');
+          grad.addColorStop(0, p.color + 'bb');
           grad.addColorStop(1, p.color + '00');
           cCtx.globalAlpha = Math.max(0, p.alpha);
           cCtx.beginPath();
@@ -320,50 +401,35 @@ export default function CinematicLayers() {
       }
     }
 
-    // Expose global APIs
+    // ── GLOBAL CELEBRATION API ──────────────────────────────────
     (window as any)._celebrate = function(el: Element | null, intensity?: number) {
       if (el) {
-        const r = el.getBoundingClientRect();
-        burst(r.left + r.width / 2, r.top + r.height / 2, intensity || 1);
+        const rect = el.getBoundingClientRect();
+        burst(rect.left + rect.width / 2, rect.top + rect.height / 2, intensity ?? 1);
       } else {
-        burst(W / 2, H * 0.4, intensity || 1);
+        burst(W / 2, H * 0.4, intensity ?? 1);
       }
     };
-    (window as any)._distantFireworks = (intensity?: number) => distantFireworks(intensity || 1);
+    (window as any)._distantFireworks = (intensity?: number) => distantFireworks(intensity ?? 1);
 
-    // Wire up existing CTAs and forms (delegated, survives re-renders)
+    // Delegated click celebration — wire up CTAs without needing per-component wiring
     function handleClick(e: MouseEvent) {
       const target = (e.target as Element).closest('.btn-primary, .btn-ghost, .cta, .cta-ghost');
-      if (target) (window as any)._celebrate(target, 1.1);
+      if (target) (window as any)._celebrate(target, 1.0);
     }
     function handleSubmit(e: SubmitEvent) {
-      setTimeout(() => (window as any)._celebrate(e.target as Element, 1.4), 200);
+      setTimeout(() => (window as any)._celebrate(e.target as Element, 1.3), 200);
     }
     document.addEventListener('click', handleClick, { passive: true });
     document.addEventListener('submit', handleSubmit as EventListener, { passive: true });
 
-    // ── SECTION ROOM LIGHTING ─────────────────────────────────
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const room = (entry.target as HTMLElement).dataset.room;
-            if (room) {
-              document.documentElement.dataset.currentRoom = room;
-            }
-          }
-        }
-      },
-      { threshold: 0.3 }
-    );
-    document.querySelectorAll('[data-room]').forEach(el => sectionObserver.observe(el));
-
-    // ── RESIZE ────────────────────────────────────────────────
     window.addEventListener('resize', resize);
 
     return () => {
       rafs.forEach(id => cancelAnimationFrame(id));
       cancelAnimationFrame(celebRaf);
+      clearTimeout(crossFadeTimer);
+      clearTimeout(observeTimer);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', resize);
       document.removeEventListener('click', handleClick);
@@ -376,36 +442,74 @@ export default function CinematicLayers() {
 
   return (
     <>
-      {/* Gold dust particles — slowest layer */}
+      {/* ── ROOM AMBIENT GLOW — cross-fades between sections ── */}
+      <div
+        ref={ambientRef}
+        aria-hidden
+        style={{
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+          // Initial warm ivory entry glow
+          background: 'radial-gradient(ellipse 90% 55% at 50% -5%, oklch(74% 0.13 80 / 0.15) 0%, transparent 55%)',
+          opacity: 1,
+          // CSS transition handles the cross-fade between rooms
+          transition: 'opacity 0.48s cubic-bezier(0.22,1,0.36,1)',
+          willChange: 'opacity, transform',
+        }}
+      />
+
+      {/* ── MARIGOLD CANOPY CEILING — persistent drift ── */}
+      <div
+        aria-hidden
+        className="canopy-drift"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+          background: 'radial-gradient(ellipse 85% 32% at 50% -8%, oklch(74% 0.13 80 / 0.10) 0%, transparent 60%)',
+          willChange: 'transform, opacity',
+        }}
+      />
+
+      {/* ── GOLD DUST PARTICLES — slowest layer ── */}
       <canvas
         ref={particleRef}
+        aria-hidden
         style={{
           position: 'fixed', inset: 0, pointerEvents: 'none',
-          zIndex: 1, opacity: 0.5, width: '100%', height: '100%',
+          zIndex: 1, opacity: 0.55, width: '100%', height: '100%',
+          willChange: 'transform',
         }}
-        aria-hidden
       />
-      {/* Marigold petals */}
+
+      {/* ── MARIGOLD PETALS ── */}
       <canvas
         ref={petalRef}
+        aria-hidden
         style={{
           position: 'fixed', inset: 0, pointerEvents: 'none',
-          zIndex: 2, opacity: 0.65, width: '100%', height: '100%',
+          zIndex: 2, opacity: 0.70, width: '100%', height: '100%',
+          willChange: 'transform',
         }}
-        aria-hidden
       />
-      {/* Mughal jaali lattice — parallaxes independently */}
+
+      {/* ── MUGHAL JAALI LATTICE — parallaxes + slight rotate ── */}
       <div ref={jaaliRef} className="jaali-overlay" aria-hidden />
-      {/* Vignette breathing */}
+
+      {/* ── VIGNETTE BREATH ── */}
       <div className="vignette-breath" aria-hidden />
-      {/* Celebration / fireworks — topmost */}
+
+      {/* ── CELEBRATION CANVAS — topmost ── */}
       <canvas
         ref={celebRef}
+        aria-hidden
         style={{
           position: 'fixed', inset: 0, pointerEvents: 'none',
           zIndex: 10, opacity: 1, width: '100%', height: '100%',
         }}
-        aria-hidden
       />
     </>
   );
