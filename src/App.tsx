@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { CheckoutProvider } from './context/CheckoutContext';
+import CinematicLayers from './components/cinematic/CinematicLayers';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
@@ -11,12 +12,11 @@ import OrderConfirmation from './pages/OrderConfirmation';
 
 function NotFound() {
   return (
-    <main className="pt-32 pb-20 min-h-screen flex items-center justify-center">
+    <main className="pt-32 pb-20 min-h-screen flex items-center justify-center bg-ivory">
       <div className="text-center">
-        <div className="text-7xl mb-6">🎲</div>
-        <h1 className="font-serif font-bold text-4xl text-dark-text mb-3">Page Not Found</h1>
-        <p className="text-gray-400 mb-8">This card hasn't been dealt yet.</p>
-        <a href="/" className="btn-primary">Return to Home</a>
+        <h1 className="cg-headline text-maroon mb-4">This room is not yet open.</h1>
+        <p className="text-muted font-light text-sm mb-10 tracking-wide">The door you tried does not exist.</p>
+        <a href="/" className="btn-primary">Return to the entrance</a>
       </div>
     </main>
   );
@@ -25,6 +25,8 @@ function NotFound() {
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      {/* Global cinematic environment — fixed layers behind everything */}
+      <CinematicLayers />
       <Navbar />
       {children}
       <Footer />
